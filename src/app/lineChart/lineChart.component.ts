@@ -117,11 +117,13 @@ export class LineChartComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges() {
+    console.log(this.chartData)
     this.createLabels();
     this.createDatasets();
   }
 
   createLabels() {
+    this.labels = [];
     if (this.chartData.length > 0) {
       this.chartData.forEach((el) => {
         const date = new Date(el.Timestamp);
@@ -135,6 +137,7 @@ export class LineChartComponent implements OnInit, OnChanges {
   }
 
   createDatasets() {
+    this.datasets = [];
     if (this.chartData.length > 0) {
       const datasets = [];
       this.chartData.forEach((el, i) => {
@@ -153,7 +156,7 @@ export class LineChartComponent implements OnInit, OnChanges {
                   position: 'center',
                   enabled: true,
                   color: 'orange',
-                  //content: 'Injection',
+                  content: 'Injection',
                   font: {
                     weight: 'bold'
                   }
@@ -171,7 +174,7 @@ export class LineChartComponent implements OnInit, OnChanges {
               pointHoverBackgroundColor: '#fff',
               pointHoverBorderColor: this.createColourFromString(k, 0.8),
               fill: 'origin',
-              hidden: true
+              hidden: false
             }
             var index = datasets.findIndex(x => x.label == k);
             if (index === -1) {
