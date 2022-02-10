@@ -169,7 +169,7 @@ export class LineChartComponent implements OnInit, OnChanges {
               this.annotations.push(obj)
             }  
           } else {
-            const hidden = Boolean(this.hourly);
+            const hidden = !Boolean(this.hourly);
             let obj = {
               data: [],
               label: k,
