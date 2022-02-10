@@ -9,6 +9,12 @@ export class DataService {
     private pbrData = new BehaviorSubject({});
     private pbrData$ = this.pbrData.asObservable();
 
+    private pbrNo = new BehaviorSubject({});
+    private pbrNo$ = this.pbrNo.asObservable();
+
+    private pbrGroupedHrly = new BehaviorSubject({});
+    private pbrGroupedHrly$ = this.pbrNo.asObservable();
+
     constructor() { }
 
     setPbrData(data) {
@@ -17,6 +23,22 @@ export class DataService {
 
     getPbrData(): Observable<any> {
         return this.pbrData$;
+    }
+
+    setPbrNo(no) {
+        return this.pbrNo.next(no);
+    }
+
+    getPbrNo(): Observable<any> {
+        return this.pbrNo$;
+    }
+
+    setPbrGroupedHrly(checked) {
+        return this.pbrNo.next(checked);
+    }
+
+    getPbrGroupedHrly(): Observable<any> {
+        return this.pbrNo$;
     }
 
 }

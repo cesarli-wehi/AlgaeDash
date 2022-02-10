@@ -5,6 +5,7 @@ import { DatePipe } from '@angular/common';
 import 'hammerjs';
 import annotationPlugin from 'chartjs-plugin-annotation';
 import zoomPlugin, { zoom } from 'chartjs-plugin-zoom';
+import { DataService } from '../_services/data.service';
 
 @Component({
   selector: 'app-lineChart',
@@ -22,6 +23,7 @@ export class LineChartComponent implements OnInit, OnChanges {
   datasets = [];
   annotations = [];
   datePipe = new DatePipe('en-GB');
+  hourly: boolean;
 
   public lineChartData: ChartConfiguration['data'] = {
     datasets: [],
@@ -109,15 +111,17 @@ export class LineChartComponent implements OnInit, OnChanges {
 
   public lineChartType: ChartType = 'line';
 
-  constructor() {
+  constructor(private _data: DataService) {
     Chart.register(zoomPlugin, annotationPlugin)
   }
 
   ngOnInit() {
+    this._data.getPbrGroupedHrly().subscribe(res => {
+      this.hourly = res;
+    })
   }
 
   ngOnChanges() {
-    console.log(this.chartData)
     this.createLabels();
     this.createDatasets();
   }
@@ -144,8 +148,8 @@ export class LineChartComponent implements OnInit, OnChanges {
         Object.keys(el).forEach(k => {
           if (k === 'Timestamp') {
             //do nothing
-          } else if (k === 'PBR1_CO2injection [off/ON]') {
-            if (el['PBR1_CO2injection [off/ON]'] == true) {
+          } else if (k === 'CO2injection [off/ON]') {
+            if (el['CO2injection [off/ON]'] == true) {
               let obj = {
                 type: 'line',
                 scaleID: 'x',
@@ -165,6 +169,7 @@ export class LineChartComponent implements OnInit, OnChanges {
               this.annotations.push(obj)
             }  
           } else {
+            const hidden = Boolean(this.hourly);
             let obj = {
               data: [],
               label: k,
@@ -174,7 +179,7 @@ export class LineChartComponent implements OnInit, OnChanges {
               pointHoverBackgroundColor: '#fff',
               pointHoverBorderColor: this.createColourFromString(k, 0.8),
               fill: 'origin',
-              hidden: false
+              hidden: hidden,
             }
             var index = datasets.findIndex(x => x.label == k);
             if (index === -1) {
@@ -246,7 +251,6 @@ export class LineChartComponent implements OnInit, OnChanges {
     let d = this.datasets.filter(el => {
       return el.label == name
     });
-    console.log(d);
     //(this.lineChartData.datasets as ChartDataset).push(d);
     this.chart.update();
   }

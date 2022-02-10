@@ -16,14 +16,19 @@ export class FileUploaderComponent implements OnInit {
   arrayBuffer: any;
   fileList: any
   hourlyData: boolean = true;
+  pbrNo: number;
 
   constructor(private _data: DataService) { }
 
   ngOnInit() {
+    this._data.getPbrNo().subscribe(res => {
+      this.pbrNo = res;
+    })
   }
 
   setHourly(event) {
     this.hourlyData = event.checked;
+    this._data.setPbrGroupedHrly(this.hourlyData);
   }
 
   addFile(event) {
@@ -41,19 +46,39 @@ export class FileUploaderComponent implements OnInit {
       var worksheet = workbook.Sheets[first_sheet_name];
       //console.log(XLSX.utils.sheet_to_json(worksheet, { raw: true }));
       var arrayList = XLSX.utils.sheet_to_json(worksheet, { raw: true, dateNF: 'yyyy-mm-dd' });
-
-      if (this.hourlyData) {
-        const newArray = this.processData(arrayList);
-
-        this._data.setPbrData(newArray);
-      } else {
-        this._data.setPbrData(arrayList);
-      }    
+      const pbrNo = loDash.nth(loDash.keys(arrayList[0]), 1)[3];
+      this._data.setPbrNo(pbrNo);
+      if (this.pbrNo) {
+        if (this.hourlyData) {
+          const newArray = this.processData(arrayList);
+          this._data.setPbrData(newArray);
+        } else {
+          var resultArray = arrayList.map((item: any) => {
+            return {
+              'Timestamp': item.Timestamp,
+              'CO2injection [off/ON]': item[`PBR${pbrNo}_CO2injection [off/ON]`],
+              'Circ.Pump [Hz]': item[`PBR${pbrNo}_Circ.Pump [Hz]`],
+              'Darktank [m3]': item[`PBR${pbrNo}_Darktank [m3]`],
+              'Flow [l/min]': item[`PBR${pbrNo}_Flow [l/min]`],
+              'Input LDO [ppm]': item[`PBR${pbrNo}_Input LDO [ppm]`],
+              'Input [pH]': item[`PBR${pbrNo}_Input [pH]`],
+              'Input [°C]': item[`PBR${pbrNo}_Input [°C]`],
+              'Light [umol/m2/s]': item[`PBR${pbrNo}_Light [umol/m2/s]`],
+              'Output LDO [ppm]': item[`PBR${pbrNo}_Output LDO [ppm]`],
+              'Output [pH]': item[`PBR${pbrNo}_Output [pH]`],
+              'Output [°C]': item[`PBR${pbrNo}_Output [°C]`],
+              'Circ.Pump [A]': item[`PBR${pbrNo}_Circ.Pump [A]`],
+            }
+         });
+          this._data.setPbrData(resultArray);
+        }    
+      }     
     }
   }
 
   processData(arrayList) {
     let newArray = [];
+    const pbrNo = this.pbrNo;
       const groupedByDay = this.groupByDay(arrayList);
       groupedByDay.forEach(el => {
         const groupedByHour = this.groupByHr(el);
@@ -65,18 +90,18 @@ export class FileUploaderComponent implements OnInit {
               acc[time] = { ...val, count: 1 }
               return acc;
             }
-            acc[time]['PBR1_CO2injection [off/ON]'] || val['PBR1_CO2injection [off/ON]'];
-            acc[time]['PBR1_Circ.Pump [A]'] += val['PBR1_Circ.Pump [A]'];
-            acc[time]['PBR1_Circ.Pump [Hz]'] += val['PBR1_Circ.Pump [Hz]'];
-            acc[time]['PBR1_Darktank [m3]'] += val['PBR1_Darktank [m3]'];
-            acc[time]['PBR1_Flow [l/min]'] += val['PBR1_Flow [l/min]'];
-            acc[time]['PBR1_Input LDO [ppm]'] += val['PBR1_Input LDO [ppm]'];
-            acc[time]['PBR1_Input [pH]'] += val['PBR1_Input [pH]'];
-            acc[time]['PBR1_Input [°C]'] += val['PBR1_Input [°C]'];
-            acc[time]['PBR1_Light [umol/m2/s]'] += val['PBR1_Light [umol/m2/s]'];
-            acc[time]['PBR1_Output LDO [ppm]'] += val['PBR1_Output LDO [ppm]'];
-            acc[time]['PBR1_Output [pH]'] += val['PBR1_Output [pH]'];
-            acc[time]['PBR1_Output [°C]'] += val['PBR1_Output [°C]'];
+            acc[time][`PBR${pbrNo}_CO2injection [off/ON]`] || val[`PBR${pbrNo}_CO2injection [off/ON]`];
+            acc[time][`PBR${pbrNo}_Circ.Pump [A]`] += val[`PBR${pbrNo}_Circ.Pump [A]`];
+            acc[time][`PBR${pbrNo}_Circ.Pump [Hz]`] += val[`PBR${pbrNo}_Circ.Pump [Hz]`];
+            acc[time][`PBR${pbrNo}_Darktank [m3]`] += val[`PBR${pbrNo}_Darktank [m3]`];
+            acc[time][`PBR${pbrNo}_Flow [l/min]`] += val[`PBR${pbrNo}_Flow [l/min]`];
+            acc[time][`PBR${pbrNo}_Input LDO [ppm]`] += val[`PBR${pbrNo}_Input LDO [ppm]`];
+            acc[time][`PBR${pbrNo}_Input [pH]`] += val[`PBR${pbrNo}_Input [pH]`];
+            acc[time][`PBR${pbrNo}_Input [°C]`] += val[`PBR${pbrNo}_Input [°C]`];
+            acc[time][`PBR${pbrNo}_Light [umol/m2/s]`] += val[`PBR${pbrNo}_Light [umol/m2/s]`];
+            acc[time][`PBR${pbrNo}_Output LDO [ppm]`] += val[`PBR${pbrNo}_Output LDO [ppm]`];
+            acc[time][`PBR${pbrNo}_Output [pH]`] += val[`PBR${pbrNo}_Output [pH]`];
+            acc[time][`PBR${pbrNo}_Output [°C]`] += val[`PBR${pbrNo}_Output [°C]`];
             acc[time].count += 1;
             return acc;
           }, {});
@@ -85,18 +110,18 @@ export class FileUploaderComponent implements OnInit {
             const item = reduced[k];
             return {
               Timestamp: item.Timestamp,
-              'PBR1_CO2injection [off/ON]': item['PBR1_CO2injection [off/ON]'],
-              'PBR1_Circ.Pump [Hz]': item['PBR1_Circ.Pump [Hz]'],
-              'PBR1_Darktank [m3]': item['PBR1_Darktank [m3]'],
-              'PBR1_Flow [l/min]': item['PBR1_Flow [l/min]'],
-              'PBR1_Input LDO [ppm]': item['PBR1_Input LDO [ppm]'],
-              'PBR1_Input [pH]': item['PBR1_Input [pH]'],
-              'PBR1_Input [°C]': item['PBR1_Input [°C]'],
-              'PBR1_Light [umol/m2/s]': item['PBR1_Light [umol/m2/s]'],
-              'PBR1_Output LDO [ppm]': item['PBR1_Output LDO [ppm]'],
-              'PBR1_Output [pH]': item['PBR1_Output [pH]'],
-              'PBR1_Output [°C]': item['PBR1_Output [°C]'],
-              'PBR1_Circ.Pump [A]': item['PBR1_Circ.Pump [A]'] / item.count,
+              'CO2injection [off/ON]': item[`PBR${pbrNo}_CO2injection [off/ON]`],
+              'Circ.Pump [Hz]': item[`PBR${pbrNo}_Circ.Pump [Hz]`] / item.count,
+              'Darktank [m3]': item[`PBR${pbrNo}_Darktank [m3]`] / item.count,
+              'Flow [l/min]': item[`PBR${pbrNo}_Flow [l/min]`] / item.count,
+              'Input LDO [ppm]': item[`PBR${pbrNo}_Input LDO [ppm]`] / item.count,
+              'Input [pH]': item[`PBR${pbrNo}_Input [pH]`] / item.count,
+              'Input [°C]': item[`PBR${pbrNo}_Input [°C]`] / item.count,
+              'Light [umol/m2/s]': item[`PBR${pbrNo}_Light [umol/m2/s]`] / item.count,
+              'Output LDO [ppm]': item[`PBR${pbrNo}_Output LDO [ppm]`] / item.count,
+              'Output [pH]': item[`PBR${pbrNo}_Output [pH]`] / item.count,
+              'Output [°C]': item[`PBR${pbrNo}_Output [°C]`] / item.count,
+              'Circ.Pump [A]': item[`PBR${pbrNo}_Circ.Pump [A]`] / item.count,
             }
           })
           newArray = newArray.concat(result);
