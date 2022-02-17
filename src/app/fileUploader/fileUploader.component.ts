@@ -44,8 +44,17 @@ export class FileUploaderComponent implements OnInit {
       var workbook = XLSX.read(bstr, { type: "binary", cellText: false, cellDates: true });
       var first_sheet_name = workbook.SheetNames[0];
       var worksheet = workbook.Sheets[first_sheet_name];
+      let entries = Object.entries(workbook.Sheets)[0];
+      let row = Object.keys(entries[1])[0];
+      let num = row.replace(/[^0-9]/g,'');
+      let range = parseInt(num) - 1;
       //console.log(XLSX.utils.sheet_to_json(worksheet, { raw: true }));
-      var arrayList = XLSX.utils.sheet_to_json(worksheet, { raw: true, dateNF: 'yyyy-mm-dd' });
+      var arrayList = XLSX.utils.sheet_to_json(worksheet, { 
+        raw: true, 
+        dateNF: 'yyyy-mm-dd', 
+        blankrows: false,
+        range: range
+      },);
       const pbrNo = loDash.nth(loDash.keys(arrayList[0]), 1)[3];
       this._data.setPbrNo(pbrNo);
       if (this.pbrNo) {
@@ -55,7 +64,7 @@ export class FileUploaderComponent implements OnInit {
         } else {
           var resultArray = arrayList.map((item: any) => {
             return {
-              'Timestamp': item.Timestamp,
+              'Timestamp': new Date(item.Timestamp).toLocaleString('en-GB'),
               'CO2injection [off/ON]': item[`PBR${pbrNo}_CO2injection [off/ON]`],
               'Circ.Pump [Hz]': item[`PBR${pbrNo}_Circ.Pump [Hz]`],
               'Darktank [m3]': item[`PBR${pbrNo}_Darktank [m3]`],
@@ -85,7 +94,7 @@ export class FileUploaderComponent implements OnInit {
         groupedByHour.forEach(it => {
 
           const reduced = it.reduce((acc, val) => {
-            let time = val.Timestamp.getHours();
+            let time = new Date(val.Timestamp).getHours();
             if (!acc[time]) {
               acc[time] = { ...val, count: 1 }
               return acc;
@@ -109,7 +118,7 @@ export class FileUploaderComponent implements OnInit {
           const result = Object.keys(reduced).map(function (k) {
             const item = reduced[k];
             return {
-              Timestamp: item.Timestamp,
+              Timestamp: new Date(item.Timestamp).toLocaleString('en-GB'),
               'CO2injection [off/ON]': item[`PBR${pbrNo}_CO2injection [off/ON]`],
               'Circ.Pump [Hz]': item[`PBR${pbrNo}_Circ.Pump [Hz]`] / item.count,
               'Darktank [m3]': item[`PBR${pbrNo}_Darktank [m3]`] / item.count,
