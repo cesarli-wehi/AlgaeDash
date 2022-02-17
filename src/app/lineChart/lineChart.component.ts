@@ -130,8 +130,9 @@ export class LineChartComponent implements OnInit, OnChanges {
     this.labels = [];
     if (this.chartData.length > 0) {
       this.chartData.forEach((el) => {
-        const date = new Date(el.Timestamp);
+        const date = el.Timestamp;
         const strDate = date.toLocaleString('en-GB');
+        console.log(date)
         //const formattedDate = this.datePipe.transform(strDate, 'short')
         this.labels.push(strDate)
       });
@@ -153,7 +154,7 @@ export class LineChartComponent implements OnInit, OnChanges {
               let obj = {
                 type: 'line',
                 scaleID: 'x',
-                value: new Date(el.Timestamp).toLocaleString('en-GB'),
+                value: el.Timestamp.toLocaleString('en-GB'),
                 borderColor: 'orange',
                 borderWidth: 2,
                 label: {
