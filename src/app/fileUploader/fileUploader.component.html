@@ -1,11 +1,15 @@
 <div class="row mt-3">
   <div class="col-1"></div>
   <div class="col-1"> 
-    Hourly Data
-    <input type="checkbox" class="" [defaultChecked]="true" (change)="setHourly($event.target)">
+    Daily Data
+    <input type="checkbox" class="" [defaultChecked]="true" (change)="setDaily($event.target)">
   </div>
-  <div class="col-8">
-    <input type="file" class="form-control" (change)="addFile($event)" placeholder="Upload file"
+  <div class="col-1"> 
+    Hourly Data
+    <input type="checkbox" class="" [defaultChecked]="false" (change)="setHourly($event.target)">
+  </div>
+  <div class="col-7">
+    <input type="file" class="form-control" multiple (change)="addFile($event)" placeholder="Upload file"
       accept=".csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
   </div>
   <div class="col-2">

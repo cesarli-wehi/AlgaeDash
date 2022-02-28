@@ -18,7 +18,6 @@ export class LineChartComponent implements OnInit, OnChanges {
   @Input() chartData;
 
 
-
   labels = [];
   datasets = [];
   annotations = [];

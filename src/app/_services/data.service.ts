@@ -12,6 +12,9 @@ export class DataService {
     private pbrNo = new BehaviorSubject({});
     private pbrNo$ = this.pbrNo.asObservable();
 
+    private pbrGroupedDaily = new BehaviorSubject(true);
+    private pbrGroupedDaily$ = this.pbrNo.asObservable();
+
     private pbrGroupedHrly = new BehaviorSubject(true);
     private pbrGroupedHrly$ = this.pbrNo.asObservable();
 
@@ -31,6 +34,14 @@ export class DataService {
 
     getPbrNo(): Observable<any> {
         return this.pbrNo$;
+    }
+
+    setPbrGroupedDaily(checked) {
+        return this.pbrGroupedDaily.next(checked);
+    }
+
+    getPbrGroupedDaily(): Observable<any> {
+        return this.pbrGroupedDaily$;
     }
 
     setPbrGroupedHrly(checked) {
