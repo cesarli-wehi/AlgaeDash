@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { AnyForUntypedForms } from '@angular/forms';
 import * as XLSX from 'xlsx';
 import { DataService } from '../_services/data.service';
 import * as loDash from 'lodash';
+
 
 @Component({
   selector: 'app-fileUploader',
@@ -90,10 +90,12 @@ export class FileUploaderComponent implements OnInit {
     if (this.pbrNo) {
       if (this.dailyData) {
         const newArray = this.processDataDaily(this.arrayList);
-        this._data.setPbrData(newArray);
+        const sortedArray = this.sortArrayByDate(newArray);
+        this._data.setPbrData(sortedArray)
       }else if (this.hourlyData) {
-        const newArray = this.processDataHourly(this.arrayList);
-        this._data.setPbrData(newArray);
+        let newArray = this.processDataHourly(this.arrayList);
+        const sortedArray = this.sortArrayByDate(newArray);
+        this._data.setPbrData(sortedArray);
       } else {
         var resultArray = this.arrayList.map((item: any) => {
           return {
@@ -217,7 +219,7 @@ export class FileUploaderComponent implements OnInit {
           }
         })
         newArray = newArray.concat(result);
-        console.log(result)
+        //console.log(result)
       });
     return newArray;
   }
@@ -225,6 +227,7 @@ export class FileUploaderComponent implements OnInit {
   groupByDate(arr) {
     const result = loDash.groupBy(arr, (el) => {
       let date = new Date(el.Timestamp);
+      console.log(el)
       return new Date (date.getFullYear(), date.getMonth(), date.getDay());
     });
     return loDash.toArray(result)
@@ -243,6 +246,16 @@ export class FileUploaderComponent implements OnInit {
     });
     //console.log(result);
     return loDash.toArray(result)
+  }
+
+  sortArrayByDate(array) {
+    const arr = loDash.sortBy(array, function(el) {
+      const date = el.Timestamp.split(",");
+      const dateParts = date[0].split("/");
+      const dateObject = new Date(+dateParts[2], dateParts[1] - 1, +dateParts[0]); 
+      return dateObject;
+    });
+    return arr;
   }
 
   clearData() {
